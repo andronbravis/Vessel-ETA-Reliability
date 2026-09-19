@@ -219,3 +219,6 @@ __marimo__/
 
 # raw ais data
 data/raw/
+
+# cleaned ais dataset
+outputs/ais_cleaned.csv
