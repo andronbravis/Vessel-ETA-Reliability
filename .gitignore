@@ -222,3 +222,4 @@ data/raw/
 
 # cleaned ais dataset
 outputs/ais_cleaned.csv
+outputs/ais_eta_validated.csv
