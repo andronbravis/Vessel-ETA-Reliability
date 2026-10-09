@@ -219,7 +219,7 @@ __marimo__/
 
 # raw ais data
 data/raw/
+data/reference/
 
 # cleaned ais dataset
-outputs/ais_cleaned.csv
-outputs/ais_eta_validated.csv
+outputs/
