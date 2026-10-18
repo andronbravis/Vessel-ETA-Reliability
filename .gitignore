@@ -220,6 +220,10 @@ __marimo__/
 # raw ais data
 data/raw/
 data/reference/
+data/mapping/
 
 # cleaned ais dataset
 outputs/
+
+# enviroment variables
+src/.env
