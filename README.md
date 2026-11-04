@@ -85,7 +85,11 @@ $$
 where SOG is measured in knots and converted to km/h.
 
 The estimated remaining travel time is compared with the AIS-reported remaining time:
+
 $$
 \Delta T = T_{\mathrm{estimated}} - T_{\mathrm{reported}}
 $$
- Discrepancies are aggregated at the vessel-destination level and further at vessel level to reduce bias from vessels with more frequent AIS transmissions. The resulting distributions are compared across Cargo, Tanker, and Passenger vessels.
+
+Discrepancies are aggregated at the vessel-destination level and further at vessel level to reduce bias from vessels with more frequent AIS transmissions. The resulting distributions are compared across Cargo, Tanker, and Passenger vessels.
+
+![Estimated vs Reported ETA](figures/eta_comparison.png)
