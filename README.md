@@ -1,4 +1,4 @@
-# Vessel-ETA-Reliability
+# AIS-Pipeline
 An end-to-end maritime data engineering project built around historical Automatic Identification System (AIS) data.  
 
 
@@ -8,16 +8,30 @@ To demonstrate the analytical valye of the processed data, the project also inve
 
 ## Project Structure and Pipeline Architecture
 The ETL pipeline is organized into five sequential stages, transforming raw AIS observations into structured data suitable for analysis.
+
 ```
-Vessel-ETA-Reliability/
-├── src/                         # ETL pipeline
-│   ├── cleaning.py              # Data cleaning
-│   ├── eta_validation.py        # ETA anomaly filtering
-│   ├── mapping.py               # Destination mapping
-│   ├── loading.py               # PostgreSQL loading
-│   └── pipeline.py              # Pipeline orchestration
+AIS-Pipeline/
+├── src/                                  # ETL pipeline
+│   ├── cleaning.py                       # Data cleaning
+│   ├── eta_validation.py                 # ETA anomaly filtering
+│   ├── mapping.py                        # Destination mapping
+│   ├── loading.py                        # PostgreSQL loading
+│   └── pipeline.py                       # Pipeline orchestration
 │
-├── notebooks/                   # Exploration and analysis
+├── data/
+│   ├── raw/                              # External AIS data (ignored)
+│   │   └── aisdk-2024-08-07.csv
+│   ├── reference/                        # External reference data (ignored)
+│   │   ├── UNLOCODE CodeListPart1.csv
+│   │   ├── UNLOCODE CodeListPart2.csv
+│   │   ├── UNLOCODE CodeListPart3.csv
+│   │   └── world_port_index.csv
+│   └── mapping/                          # Curated reference datasets
+│       ├── destination_aliases.csv
+│       ├── manual_port_coordinates.csv
+│       └── eta_outliers.csv
+│
+├── notebooks/                            # Exploration and analysis
 │   ├── data_exploration.ipynb
 │   ├── data_cleaning.ipynb
 │   ├── ETA_behavior.ipynb
@@ -25,10 +39,12 @@ Vessel-ETA-Reliability/
 │   └── ais_analysis.ipynb
 │
 ├── figures/
-│   └── eta_comparison.png       # ETA comparison plot
+│   └── eta_comparison.png                # ETA comparison plot
 │
 ├── .gitignore
+├── requirements.txt                      # Python dependencies
 └── README.md
+
 ```
 
 ## Technology Stack
@@ -46,7 +62,7 @@ Vessel-ETA-Reliability/
 
 The pipeline processes historical AIS observations into a structured PostgreSQL dataset through four main stages:
 
-1. **Extraction:** Ingests raw AIS observations alongside UN/LOCODE, World Port Index (WPI), and curated reference datasets.
+1. **Extraction:** Ingests raw AIS observations alongside UN/LOCODE, World Port Index (WPI), and reference datasets.
 
 2. **Cleaning & Validation:** Filters records by vessel type, navigational status, speed quality, and destination validity. Standardizes destination strings, validates timestamps and reported ETAs, and removes identified ETA anomalies through a key-based anti join.
 
@@ -79,7 +95,7 @@ Where:
 Estimated remaining travel time is then computed as:
 
 $$
-\text{$T$estimated} = \frac{d}{\text{hourly median SOG} \times 1.852}
+T_{\mathrm{estimated}} = \frac{d}{\mathrm{hourly\ median\ SOG} \times 1.852}
 $$
 
 where SOG is measured in knots and converted to km/h.
@@ -93,3 +109,57 @@ $$
 Discrepancies are aggregated at the vessel-destination level and further at vessel level to reduce bias from vessels with more frequent AIS transmissions. The resulting distributions are compared across Cargo, Tanker, and Passenger vessels.
 
 ![Estimated vs Reported ETA](figures/eta_comparison.png)
+
+## Setup
+
+### Data acquisition
+The pipeline uses publicly available historical AIS data and maritime reference datasets. Large external datasets are gitignored and must be downloaded separately.
+
+| Dataset | Source | Local file |
+|---|---|---|
+| AIS observations (2024-08-07) | [Danish Maritime Authority](http://aisdata.ais.dk/?prefix=2024/) | `data/raw/aisdk-2024-08-07.csv` |
+| UN/LOCODE | [UNECE](https://unlocode.unece.org/publications/) | `data/reference/UNLOCODE CodeListPart*.csv` |
+| World Port Index | [GitHub](https://gist.github.com/ifeanyiOkey/d0fb94e51ab02e74a825e9fa48a08308) | `data/reference/world_port_index.csv` |
+
+The pipeline also uses curated destination aliases, manually selected port coordinates, and ETA anomaly references stored under `data/mapping/`.
+
+### Installation
+
+Clone the repository and install the required Python dependencies:
+
+```bash
+git clone https://github.com/andronbravis/AIS-pipeline.git
+cd AIS-Pipeline
+python -m pip install -r requirements.txt
+```
+
+### Database Configuration
+
+Create a PostgreSQL database and configure the following environment variables in a `.env` file:
+
+```dotenv
+DB_NAME=vessel_eta_db
+DB_USER=postgres
+DB_PASSWORD=your_password
+DB_HOST=localhost
+DB_PORT=5432
+```
+
+Ensure the external datasets are placed in the directories specified above.
+
+### Running the Pipeline
+
+Execute the pipeline from the repository root:
+
+```bash
+python src/pipeline.py
+```
+
+The pipeline automatically creates the `vessel_eta` table if it does not exist, processes the AIS observations, and bulk-loads the transformed data into PostgreSQL.
+
+**Note:** Each execution replaces the existing contents of the `vessel_eta` table.
+
+## Author
+
+**Andronikos Bravis**  
+[GitHub](https://github.com/andronbravis) | [LinkedIn](https://www.linkedin.com/in/andronikos-bravis-2874483a1/)

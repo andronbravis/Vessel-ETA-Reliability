@@ -217,13 +217,12 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 
-# raw ais data
+# raw ais data and external datasets
 data/raw/
 data/reference/
-data/mapping/
 
-# cleaned ais dataset
+# generated outputs
 outputs/
 
 # enviroment variables
-src/.env
+.env
